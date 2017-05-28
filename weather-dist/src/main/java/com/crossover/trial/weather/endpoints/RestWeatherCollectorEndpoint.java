@@ -14,8 +14,8 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.core.Response;
 
 import com.crossover.trial.weather.exceptions.WeatherException;
-import com.crossover.trial.weather.model.AirportData;
-import com.crossover.trial.weather.model.AtmosphericInformation;
+import com.crossover.trial.weather.model.Airport;
+import com.crossover.trial.weather.model.AtmosphericData;
 import com.crossover.trial.weather.model.DataPoint;
 import com.crossover.trial.weather.model.DataPointType;
 import com.google.gson.Gson;
@@ -56,7 +56,7 @@ public class RestWeatherCollectorEndpoint implements WeatherCollectorEndpoint {
     @Override
     public Response getAirports() {
         Set<String> retval = new HashSet<>();
-        for (AirportData ad : airportData) {
+        for (Airport ad : airportData) {
             retval.add(ad.getIata());
         }
         return Response.status(Response.Status.OK).entity(retval).build();
@@ -65,7 +65,7 @@ public class RestWeatherCollectorEndpoint implements WeatherCollectorEndpoint {
 
     @Override
     public Response getAirport(@PathParam("iata") String iata) {
-        AirportData ad = findAirportData(iata);
+        Airport ad = findAirportData(iata);
         return Response.status(Response.Status.OK).entity(ad).build();
     }
 
@@ -104,7 +104,7 @@ public class RestWeatherCollectorEndpoint implements WeatherCollectorEndpoint {
      */
     public void addDataPoint(String iataCode, String pointType, DataPoint dp) throws WeatherException {
         int airportDataIdx = getAirportDataIdx(iataCode);
-        AtmosphericInformation ai = atmosphericInformation.get(airportDataIdx);
+        AtmosphericData ai = atmosphericInformation.get(airportDataIdx);
         updateAtmosphericInformation(ai, pointType, dp);
     }
 
@@ -115,7 +115,7 @@ public class RestWeatherCollectorEndpoint implements WeatherCollectorEndpoint {
      * @param pointType the data point type as a string
      * @param dp the actual data point
      */
-    public void updateAtmosphericInformation(AtmosphericInformation ai, String pointType, DataPoint dp) throws WeatherException {
+    public void updateAtmosphericInformation(AtmosphericData ai, String pointType, DataPoint dp) throws WeatherException {
         final DataPointType dptype = DataPointType.valueOf(pointType.toUpperCase());
 
         if (pointType.equalsIgnoreCase(DataPointType.WIND.name())) {
@@ -167,29 +167,5 @@ public class RestWeatherCollectorEndpoint implements WeatherCollectorEndpoint {
         }
 
         throw new IllegalStateException("couldn't update atmospheric data");
-    }
-
-    /**
-     * Add a new known airport to our list.
-     *
-     * @param iataCode 3 letter code
-     * @param latitude in degrees
-     * @param longitude in degrees
-     *
-     * @return the added airport
-     */
-    public static AirportData addAirport(String iataCode, double latitude, double longitude) {
-        
-    	AirportData ad = new AirportData();
-        airportData.add(ad);
-
-        AtmosphericInformation ai = new AtmosphericInformation();
-        atmosphericInformation.add(ai);
-        
-        ad.setIata(iataCode);
-        ad.setLatitude(latitude);
-        ad.setLatitude(longitude);
-        
-        return ad;
     }
 }

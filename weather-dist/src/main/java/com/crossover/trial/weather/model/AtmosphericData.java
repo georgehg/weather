@@ -5,7 +5,7 @@ import com.crossover.trial.weather.exceptions.WeatherException;
 /**
  * encapsulates sensor information for a particular location
  */
-public class AtmosphericInformation {
+public class AtmosphericData {
 
     /** temperature in degrees celsius */
     private DataPoint temperature;
@@ -28,10 +28,10 @@ public class AtmosphericInformation {
     /** the last time this data was updated, in milliseconds since UTC epoch */
     private long lastUpdateTime;
 
-    public AtmosphericInformation() {
+    public AtmosphericData() {
     }
 
-    protected AtmosphericInformation(DataPoint temperature, DataPoint wind, DataPoint humidity, DataPoint percipitation, DataPoint pressure, DataPoint cloudCover) {
+    protected AtmosphericData(DataPoint temperature, DataPoint wind, DataPoint humidity, DataPoint percipitation, DataPoint pressure, DataPoint cloudCover) {
         this.temperature = temperature;
         this.wind = wind;
         this.humidity = humidity;

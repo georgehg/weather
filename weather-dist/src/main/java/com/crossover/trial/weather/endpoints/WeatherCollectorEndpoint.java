@@ -55,7 +55,7 @@ public interface WeatherCollectorEndpoint {
      * Retrieve airport data, including latitude and longitude for a particular airport
      *
      * @param iata the 3 letter airport code
-     * @return an HTTP Response with a json representation of {@link AirportData}
+     * @return an HTTP Response with a json representation of {@link Airport}
      */
     @GET
     @Path("/airport/{iata}")
