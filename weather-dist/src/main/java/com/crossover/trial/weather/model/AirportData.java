@@ -1,28 +1,40 @@
 package com.crossover.trial.weather.model;
 
-import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
-import org.apache.commons.lang3.builder.ToStringStyle;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 /**
  * Basic airport information.
  *
  * @author code test administrator
  */
+@ToString
+@EqualsAndHashCode
 public class AirportData {
 
     /** the three letter IATA code */
-    String iata;
+    private String iata;
 
     /** latitude value in degrees */
-    double latitude;
+    private double latitude;
 
     /** longitude value in degrees */
-    double longitude;
+    private double longitude;
+    
+    /** Airport Atmospheric Informations */
+    private AtmosphericInformation atmosphericInformation;
 
-    public AirportData() { }
+	public AirportData(String iata, double latitude, double longitude, AtmosphericInformation atmosphericInformation) {
+		this.iata = iata;
+		this.latitude = latitude;
+		this.longitude = longitude;
+		this.atmosphericInformation = atmosphericInformation;
+	}
+	
+	
 
     public String getIata() {
-        return iata;
+        return this.iata;
     }
 
     public void setIata(String iata) {
@@ -30,7 +42,7 @@ public class AirportData {
     }
 
     public double getLatitude() {
-        return latitude;
+        return this.latitude;
     }
 
     public void setLatitude(double latitude) {
@@ -38,22 +50,11 @@ public class AirportData {
     }
 
     public double getLongitude() {
-        return longitude;
+        return this.longitude;
     }
 
     public void setLongitude(double longitude) {
         this.longitude = longitude;
     }
-
-    public String toString() {
-        return ReflectionToStringBuilder.toString(this, ToStringStyle.NO_CLASS_NAME_STYLE);
-    }
-
-    public boolean equals(Object other) {
-        if (other instanceof AirportData) {
-            return ((AirportData)other).getIata().equals(this.getIata());
-        }
-
-        return false;
-    }
+    
 }

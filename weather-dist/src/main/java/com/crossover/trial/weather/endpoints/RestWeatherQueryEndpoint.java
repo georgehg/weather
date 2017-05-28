@@ -1,16 +1,20 @@
 package com.crossover.trial.weather.endpoints;
 
-import com.crossover.trial.weather.model.AirportData;
-import com.crossover.trial.weather.model.AtmosphericInformation;
-import com.google.gson.Gson;
+import static com.crossover.trial.weather.endpoints.RestWeatherCollectorEndpoint.addAirport;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.logging.Logger;
 
 import javax.ws.rs.Path;
 import javax.ws.rs.core.Response;
 
-import static com.crossover.trial.weather.endpoints.RestWeatherCollectorEndpoint.addAirport;
-
-import java.util.*;
-import java.util.logging.Logger;
+import com.crossover.trial.weather.model.AirportData;
+import com.crossover.trial.weather.model.AtmosphericInformation;
+import com.google.gson.Gson;
 
 /**
  * The Weather App REST endpoint allows clients to query, update and check health stats. Currently, all data is
@@ -184,7 +188,7 @@ public class RestWeatherQueryEndpoint implements WeatherQueryEndpoint {
     /**
      * A dummy init method that loads hard coded data
      */
-    protected static void init() {
+    public static void init() {
         airportData.clear();
         atmosphericInformation.clear();
         requestFrequency.clear();

@@ -12,15 +12,15 @@ import lombok.ToString;
 @EqualsAndHashCode
 public class DataPoint {
 
-	private double mean = 0.0;
+	private double mean;
 	
-	private int first = 0;
+	private int first;
 
-	private int second = 0;
+	private int second;
 
-	private int third = 0;
+	private int third;
 
-	private int count = 0;
+	private int count;
 	
     /** private constructor, use the builder to create this object */
     private DataPoint(double mean, int first, int second, int third, int count) {
@@ -33,27 +33,27 @@ public class DataPoint {
 
     /** the mean of the observations */
     public double getMean() {
-        return mean;
+        return this.mean;
     }
 
     /** 1st quartile -- useful as a lower bound */
     public int getFirst() {
-        return first;
+        return this.first;
     }
 
     /** 2nd quartile -- median value */
     public int getSecond() {
-        return second;
+        return this.second;
     }
 
     /** 3rd quartile value -- less noisy upper value */
     public int getThird() {
-        return third;
+        return this.third;
     }
 
     /** the total number of measurements */
     public int getCount() {
-        return count;
+        return this.count;
     }
     
     public static DataPoint.Builder builder() {
@@ -61,13 +61,12 @@ public class DataPoint {
     }
 
     public static final class Builder {
-    	private double mean;
-        private int first;
-        private int second;
-        private int third;
-        private int count;
-
-        public Builder() {}
+    	
+    	private double mean = 0.0;
+        private int first = 0;
+        private int second = 0;
+        private int third = 0;
+        private int count = 0;
         
         public Builder withMean(double mean) {
         	this.mean = mean;

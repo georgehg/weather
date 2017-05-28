@@ -1,9 +1,11 @@
 package com.crossover.trial.weather.model;
 
+import com.crossover.trial.weather.exceptions.WeatherException;
+
 /**
  * encapsulates sensor information for a particular location
  */
-class AtmosphericInformation {
+public class AtmosphericInformation {
 
     /** temperature in degrees celsius */
     private DataPoint temperature;
@@ -27,7 +29,6 @@ class AtmosphericInformation {
     private long lastUpdateTime;
 
     public AtmosphericInformation() {
-
     }
 
     protected AtmosphericInformation(DataPoint temperature, DataPoint wind, DataPoint humidity, DataPoint percipitation, DataPoint pressure, DataPoint cloudCover) {
@@ -39,47 +40,90 @@ class AtmosphericInformation {
         this.cloudCover = cloudCover;
         this.lastUpdateTime = System.currentTimeMillis();
     }
+    
+    /**
+     * update atmospheric information with the given data point for the given point type
+     *
+     * @param dataPoint the actual data point
+     * @param pointType the data point type as a string
+     */
+    public void updateAtmosphericInformation(DataPoint dataPoint, DataPointType dataPointType) throws WeatherException {
+        
+    	switch (dataPointType) {
+		case WIND:
+			if (dataPoint.getMean() >= 0) {
+                this.wind = dataPoint;
+                this.lastUpdateTime = System.currentTimeMillis();
+            }
+			break;
+			
+		case TEMPERATURE:
+            if (dataPoint.getMean() >= -50 && dataPoint.getMean() < 100) {
+            	this.temperature = dataPoint;
+            	this.lastUpdateTime = System.currentTimeMillis();
+            }
+			break;
+
+		case HUMIDTY:
+            if (dataPoint.getMean() >= 0 && dataPoint.getMean() < 100) {
+            	this.humidity = dataPoint;
+            	this.lastUpdateTime = System.currentTimeMillis();
+            }
+			break;
+
+		case PRESSURE:
+            if (dataPoint.getMean() >= 650 && dataPoint.getMean() < 800) {
+            	this.pressure = dataPoint ;
+            	this.lastUpdateTime = System.currentTimeMillis();
+            }
+			break;
+
+		case CLOUDCOVER:
+            if (dataPoint.getMean() >= 0 && dataPoint.getMean() < 100) {
+            	this.cloudCover = dataPoint;
+            	this.lastUpdateTime = System.currentTimeMillis();
+            }
+			break;
+
+		case PRECIPITATION:
+            if (dataPoint.getMean() >=0 && dataPoint.getMean() < 100) {
+            	this.precipitation = dataPoint;
+            	this.lastUpdateTime = System.currentTimeMillis();
+            }
+			break;
+			
+		default:
+			throw new WeatherException("couldn't update atmospheric data");
+		}
+    	
+    }
 
     public DataPoint getTemperature() {
-        return temperature;
+        return this.temperature;
     }
-    public void setTemperature(DataPoint temperature) {
-        this.temperature = temperature;
-    }
+
     public DataPoint getWind() {
-        return wind;
+        return this.wind;
     }
-    public void setWind(DataPoint wind) {
-        this.wind = wind;
-    }
+
     public DataPoint getHumidity() {
-        return humidity;
+        return this.humidity;
     }
-    public void setHumidity(DataPoint humidity) {
-        this.humidity = humidity;
-    }
+
     public DataPoint getPrecipitation() {
-        return precipitation;
+        return this.precipitation;
     }
-    public void setPrecipitation(DataPoint precipitation) {
-        this.precipitation = precipitation;
-    }
+
     public DataPoint getPressure() {
-        return pressure;
+        return this.pressure;
     }
-    public void setPressure(DataPoint pressure) {
-        this.pressure = pressure;
-    }
+
     public DataPoint getCloudCover() {
-        return cloudCover;
+        return this.cloudCover;
     }
-    public void setCloudCover(DataPoint cloudCover) {
-        this.cloudCover = cloudCover;
-    }
-    protected long getLastUpdateTime() {
+
+    public long getLastUpdateTime() {
         return this.lastUpdateTime;
     }
-    protected void setLastUpdateTime(long lastUpdateTime) {
-        this.lastUpdateTime = lastUpdateTime;
-    }
+
 }

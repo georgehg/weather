@@ -47,6 +47,7 @@ public class WeatherServer {
                     System.out.println(request.getRequestURI());
                 }
             };
+            
             server.getServerConfiguration().getMonitoringConfig().getWebServerConfig().addProbes(probe);
 
 

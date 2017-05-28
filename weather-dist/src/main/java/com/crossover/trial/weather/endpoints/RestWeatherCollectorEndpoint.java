@@ -15,6 +15,7 @@ import javax.ws.rs.core.Response;
 
 import com.crossover.trial.weather.exceptions.WeatherException;
 import com.crossover.trial.weather.model.AirportData;
+import com.crossover.trial.weather.model.AtmosphericInformation;
 import com.crossover.trial.weather.model.DataPoint;
 import com.crossover.trial.weather.model.DataPointType;
 import com.google.gson.Gson;
@@ -28,7 +29,8 @@ import com.google.gson.Gson;
 
 @Path("/collect")
 public class RestWeatherCollectorEndpoint implements WeatherCollectorEndpoint {
-    public final static Logger LOGGER = Logger.getLogger(RestWeatherCollectorEndpoint.class.getName());
+    
+	public final static Logger LOGGER = Logger.getLogger(RestWeatherCollectorEndpoint.class.getName());
 
     /** shared gson json to object factory */
     public final static Gson gson = new Gson();
@@ -177,14 +179,17 @@ public class RestWeatherCollectorEndpoint implements WeatherCollectorEndpoint {
      * @return the added airport
      */
     public static AirportData addAirport(String iataCode, double latitude, double longitude) {
-        AirportData ad = new AirportData();
+        
+    	AirportData ad = new AirportData();
         airportData.add(ad);
 
         AtmosphericInformation ai = new AtmosphericInformation();
         atmosphericInformation.add(ai);
+        
         ad.setIata(iataCode);
         ad.setLatitude(latitude);
         ad.setLatitude(longitude);
+        
         return ad;
     }
 }
