@@ -9,10 +9,12 @@ import java.util.logging.Logger;
 import javax.ws.rs.Path;
 import javax.ws.rs.core.Response;
 
+import com.crossover.trial.weather.exceptions.WeatherException;
 import com.crossover.trial.weather.model.Airport;
 import com.crossover.trial.weather.model.AtmosphericData;
+import com.crossover.trial.weather.model.Radius;
 import com.crossover.trial.weather.repository.AirportDataRepository;
-import com.crossover.trial.weather.repository.RequestFrequencyRepository;
+import com.crossover.trial.weather.repository.RadiusRepository;
 import com.google.gson.Gson;
 
 /**
@@ -30,6 +32,8 @@ public class RestWeatherQueryEndpoint implements WeatherQueryEndpoint {
 	/** shared gson json to object factory */
 	public static final Gson gson = new Gson();
 
+	private static final long MILLISECONDS_OF_DAY = 86400000;
+
 	/** all known airports */
 	private static AirportDataRepository airportRepository = new AirportDataRepository();
 
@@ -41,7 +45,7 @@ public class RestWeatherQueryEndpoint implements WeatherQueryEndpoint {
 	 * using a REST request and aggregate with other performance metrics
 	 * {@link #ping()}
 	 */
-	private static RequestFrequencyRepository rfRepository = new RequestFrequencyRepository();
+	private static RadiusRepository radiusRepository = new RadiusRepository();
 
 	static {
 		init();
@@ -59,9 +63,12 @@ public class RestWeatherQueryEndpoint implements WeatherQueryEndpoint {
 		Map<String, Object> retval = new HashMap<>();
 
 		int datasize = 0;
-		for (String iataCode : airportRepository.getKeySet()) {
+		Map<String, Double> freq = new HashMap<>();
+		Integer repositoryCount = airportRepository.getCount();
+		
+		for (Airport airport : airportRepository.getAll()) {
 
-			AtmosphericData ai = airportRepository.get(iataCode).getAtmosphericInformation();
+			AtmosphericData ai = airport.getAtmosphericInformation();
 
 			if (ai.getCloudCover() != null
 					|| ai.getHumidity() != null
@@ -70,30 +77,28 @@ public class RestWeatherQueryEndpoint implements WeatherQueryEndpoint {
 					|| ai.getTemperature() != null
 					|| ai.getWind() != null) {
 					// updated in the last day
-					if (ai.getLastUpdateTime() > System.currentTimeMillis() - 86400000) {
+					if (ai.getLastUpdateTime() > System.currentTimeMillis() - MILLISECONDS_OF_DAY) {
 						datasize++;
 					}
 			}
+			
+			double frac = (double) airport.getFrequency() / repositoryCount;
+			freq.put(airport.getIata(), frac);			
 		}
 
 		retval.put("datasize", datasize);
-
-		Map<String, Double> freq = new HashMap<>();
-		// fraction of queries
-		for (Airport airport : airportRepository.getAll() ) {
-			double frac = (double) rfRepository.get(airport.getIata()).getFrequency()
-						/ rfRepository.getCount();
-			freq.put(airport.getIata(), frac);
-		}
-
 		retval.put("iata_freq", freq);
 
-		int maxRadius = rfRepository.getMaxRadius();
+		int maxRadius = radiusRepository.getKeySet()
+									.stream()
+									.max(Double::compare)
+									.orElse(1000.0)
+									.intValue() + 1;
 
 		int[] hist = new int[maxRadius];
-		for (Double key : rfRepository.getRadiusSet()) {
-			int i = key.intValue() % 10;
-			hist[i] += rfRepository.getRadiusVal(key);
+		for (Radius radius : radiusRepository.getAll()) {
+			int i = radius.getRadius().intValue() % 10;
+			hist[i] += radius.getFrequency();
 		}
 		retval.put("radius_freq", hist);
 
@@ -117,9 +122,10 @@ public class RestWeatherQueryEndpoint implements WeatherQueryEndpoint {
 
 		double radius = radiusString == null || radiusString.trim().isEmpty() ? 0 : Double.valueOf(radiusString);
 		
-		rfRepository.updateFrequency(iata, radius);
+		airportRepository.get(iata).ifPresent((ap) -> ap.increaseFrequency());  
+		radiusRepository.get(radius).ifPresent((ra) -> ra.increaseFrequency());
 		
-		Airport airPort = airportRepository.getData(iata);
+		Airport airPort = airportRepository.get(iata).orElse(null);
 
 		List<AtmosphericData> retval = new ArrayList<>();
 		
@@ -146,7 +152,7 @@ public class RestWeatherQueryEndpoint implements WeatherQueryEndpoint {
 	 */
 	public static void init() {
 		airportRepository.removeAll();
-		rfRepository.removeAll();
+		radiusRepository.removeAll();
 
 		addAirport("BOS", 42.364347, -71.005181);
 		addAirport("EWR", 40.6925, -74.168667);
@@ -165,8 +171,11 @@ public class RestWeatherQueryEndpoint implements WeatherQueryEndpoint {
      * @return the added airport
      */
     public static void addAirport(String iataCode, double latitude, double longitude) {        
-    	Airport airport = Airport.of(iataCode, latitude, longitude, new AtmosphericData());
-    	airportRepository.add(airport);        
+    	Airport airport = Airport.of(iataCode, latitude, longitude);
+    	try {
+			airportRepository.add(airport);
+		} catch (WeatherException e) {
+			LOGGER.warning(e.getMessage());
+		}        
     }
-
 }

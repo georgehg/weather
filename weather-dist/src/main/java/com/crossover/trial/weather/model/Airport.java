@@ -25,17 +25,24 @@ public class Airport {
     private double longitude;
     
     /** Airport Atmospheric Informations */
-    private AtmosphericData atmosphericInformation;
+    private AtmosphericData atmosphericData;
+    
+    private Integer frequency;
 
-	private Airport(String iata, double latitude, double longitude, AtmosphericData atmosphericInformation) {
+	private Airport(String iata, double latitude, double longitude, AtmosphericData atmosphericData) {
 		this.iata = iata;
 		this.latitude = latitude;
 		this.longitude = longitude;
-		this.atmosphericInformation = atmosphericInformation;
+		this.atmosphericData = atmosphericData;
+		this.frequency = 0;
 	}
 	
-	public static Airport of(String iata, double latitude, double longitude, AtmosphericData atmosphericInformation) {
-		return new Airport(iata, latitude, longitude, atmosphericInformation);
+	public static Airport of(String iata, double latitude, double longitude) {
+		return new Airport(iata, latitude, longitude, new AtmosphericData());
+	}
+	
+	public static Airport of(String iata, double latitude, double longitude, AtmosphericData atmosphericData) {
+		return new Airport(iata, latitude, longitude, atmosphericData);
 	}
 	
 	/**
@@ -81,11 +88,19 @@ public class Airport {
     }
 
 	public AtmosphericData getAtmosphericInformation() {
-		return atmosphericInformation;
+		return atmosphericData;
 	}
 
 	public void setAtmosphericInformation(AtmosphericData atmosphericInformation) {
-		this.atmosphericInformation = atmosphericInformation;
+		this.atmosphericData = atmosphericInformation;
 	}
-    
+	
+	public Integer getFrequency() {
+		return frequency;
+	}
+	
+	public void increaseFrequency() {
+		this.frequency++;
+	}
+
 }

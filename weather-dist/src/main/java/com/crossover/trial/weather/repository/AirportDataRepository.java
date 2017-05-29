@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -23,8 +24,8 @@ public class AirportDataRepository implements Repository<Airport, String> {
 	 * @return airport data or null if not found
 	 */
 	@Override
-	public Airport get(String iataCode) {
-		return airportData.get(iataCode);
+	public Optional<Airport> get(String iataCode) {
+		return Optional.ofNullable(airportData.get(iataCode));
 	}
 
 	@Override
