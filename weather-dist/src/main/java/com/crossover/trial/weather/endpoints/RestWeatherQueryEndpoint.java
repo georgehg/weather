@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.logging.Logger;
 
 import javax.ws.rs.Path;
@@ -11,7 +12,7 @@ import javax.ws.rs.core.Response;
 
 import com.crossover.trial.weather.exceptions.WeatherException;
 import com.crossover.trial.weather.model.Airport;
-import com.crossover.trial.weather.model.AtmosphericData;
+import com.crossover.trial.weather.model.AtmosphericInformation;
 import com.crossover.trial.weather.model.Radius;
 import com.crossover.trial.weather.repository.AirportDataRepository;
 import com.crossover.trial.weather.repository.RadiusRepository;
@@ -68,18 +69,11 @@ public class RestWeatherQueryEndpoint implements WeatherQueryEndpoint {
 		
 		for (Airport airport : airportRepository.getAll()) {
 
-			AtmosphericData ai = airport.getAtmosphericInformation();
+			AtmosphericInformation ai = airport.getAtmosphericInformation();
 
-			if (ai.getCloudCover() != null
-					|| ai.getHumidity() != null
-					|| ai.getPressure() != null
-					|| ai.getPrecipitation() != null
-					|| ai.getTemperature() != null
-					|| ai.getWind() != null) {
-					// updated in the last day
-					if (ai.getLastUpdateTime() > System.currentTimeMillis() - MILLISECONDS_OF_DAY) {
-						datasize++;
-					}
+			// updated in the last day
+			if (ai.getLastUpdateTime() > System.currentTimeMillis() - MILLISECONDS_OF_DAY) {
+				datasize += ai.getSize();
 			}
 			
 			double frac = (double) airport.getFrequency() / repositoryCount;
@@ -90,10 +84,10 @@ public class RestWeatherQueryEndpoint implements WeatherQueryEndpoint {
 		retval.put("iata_freq", freq);
 
 		int maxRadius = radiusRepository.getKeySet()
-									.stream()
-									.max(Double::compare)
-									.orElse(1000.0)
-									.intValue() + 1;
+										.stream()
+										.max(Double::compare)
+										.orElse(1000.0)
+										.intValue() + 1;
 
 		int[] hist = new int[maxRadius];
 		for (Radius radius : radiusRepository.getAll()) {
@@ -125,16 +119,20 @@ public class RestWeatherQueryEndpoint implements WeatherQueryEndpoint {
 		airportRepository.get(iata).ifPresent((ap) -> ap.increaseFrequency());  
 		radiusRepository.get(radius).ifPresent((ra) -> ra.increaseFrequency());
 		
-		Airport airPort = airportRepository.get(iata).orElse(null);
+		Optional<Airport> airPort = airportRepository.get(iata);
+		
+		if (!airPort.isPresent()) {
+			return Response.status(Response.Status.NOT_FOUND).entity("Airpot not found with IATA: " + iata).build();
+		} 
 
-		List<AtmosphericData> retval = new ArrayList<>();
+		List<AtmosphericInformation> retval = new ArrayList<>();
 		
 		if (radius == 0) {
-			retval.add(airPort.getAtmosphericInformation());
+			retval.add(airPort.get().getAtmosphericInformation());
 		} else {
 			for (Airport otherAirPort : airportRepository.getAll()) {
-				if (airPort.calculateDistanceTo(otherAirPort) <= radius) {
-					AtmosphericData ai = otherAirPort.getAtmosphericInformation();
+				if (airPort.get().calculateDistanceTo(otherAirPort) <= radius) {
+					AtmosphericInformation ai = otherAirPort.getAtmosphericInformation();
 					if (ai.getCloudCover() != null || ai.getHumidity() != null || ai.getPrecipitation() != null
 							|| ai.getPressure() != null || ai.getTemperature() != null || ai.getWind() != null) {
 						retval.add(ai);

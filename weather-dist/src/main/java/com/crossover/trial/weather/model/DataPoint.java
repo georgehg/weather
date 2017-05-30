@@ -11,10 +11,10 @@ import lombok.ToString;
 @ToString
 @EqualsAndHashCode
 public class DataPoint {
-
-	private double mean;
 	
 	private int first;
+
+	private double mean;
 
 	private int second;
 
@@ -23,9 +23,9 @@ public class DataPoint {
 	private int count;
 	
     /** private constructor, use the builder to create this object */
-    private DataPoint(double mean, int first, int second, int third, int count) {
-    	this.mean = mean;
+    protected DataPoint(int first, Double mean, int second, int third, int count) {
     	this.first = first;
+    	this.mean = mean;
         this.second = second;
         this.third = third;
         this.count = count;
@@ -59,32 +59,43 @@ public class DataPoint {
     public static DataPoint.Builder builder() {
     	return new DataPoint.Builder();
     }
+    
+    public DataPoint.Builder toBuilder() {
+    	Builder builder = new DataPoint.Builder();
+    	return builder.withFirst(this.getFirst())
+    					.withMean(this.getMean())
+		    			.withMedian(this.getSecond())
+		    			.withLast(this.getThird())
+		    			.withCount(this.count);
+    }
 
     public static final class Builder {
     	
+    	private int first = 0;
     	private double mean = 0.0;
-        private int first = 0;
-        private int second = 0;
-        private int third = 0;
+        private int median = 0;
+        private int last = 0;
         private int count = 0;
         
+        private Builder(){}
+        
+        public Builder withFirst(int first) {
+        	this.first = first;
+        	return this;
+        }
+
         public Builder withMean(double mean) {
         	this.mean = mean;
         	return this;
         }
 
-        public Builder withFirst(int first) {
-            this.first= first;
+        public Builder withMedian(int median) {
+        	this.median = median;
             return this;
         }
 
-        public Builder withSecond(int second) {
-        	this.second = second;
-            return this;
-        }
-
-        public Builder withThird(int third) {
-        	this.third = third;
+        public Builder withLast(int last) {
+        	this.last = last;
         	return this;
         }
         
@@ -94,7 +105,7 @@ public class DataPoint {
         }
 
         public DataPoint build() {
-            return new DataPoint(this.mean, this.first, this.second, this.third, this.count);
+            return new DataPoint(this.first, this.mean, this.median, this.last, this.count);
         }
     }
 }
