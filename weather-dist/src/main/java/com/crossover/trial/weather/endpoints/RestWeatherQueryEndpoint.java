@@ -11,11 +11,11 @@ import javax.ws.rs.Path;
 import javax.ws.rs.core.Response;
 
 import com.crossover.trial.weather.exceptions.WeatherException;
+import com.crossover.trial.weather.frequency.RequestFrequency;
 import com.crossover.trial.weather.model.Airport;
 import com.crossover.trial.weather.model.AtmosphericInformation;
-import com.crossover.trial.weather.model.Radius;
 import com.crossover.trial.weather.repository.AirportDataRepository;
-import com.crossover.trial.weather.repository.RadiusRepository;
+import com.crossover.trial.weather.repository.RequestFrequecyRepository;
 import com.google.gson.Gson;
 
 /**
@@ -36,7 +36,7 @@ public class RestWeatherQueryEndpoint implements WeatherQueryEndpoint {
 	private static final long MILLISECONDS_OF_DAY = 86400000;
 
 	/** all known airports */
-	private static AirportDataRepository airportRepository = new AirportDataRepository();
+	private static AirportDataRepository airportRepository = AirportDataRepository.getInstance();
 
 	/**
 	 * Internal performance counter to better understand most requested
@@ -46,11 +46,7 @@ public class RestWeatherQueryEndpoint implements WeatherQueryEndpoint {
 	 * using a REST request and aggregate with other performance metrics
 	 * {@link #ping()}
 	 */
-	private static RadiusRepository radiusRepository = new RadiusRepository();
-
-	static {
-		init();
-	}
+	private static RequestFrequecyRepository radiusRepository = RequestFrequecyRepository.getInstance();
 
 	/**
 	 * Retrieve service health including total size of valid data points and
@@ -73,7 +69,8 @@ public class RestWeatherQueryEndpoint implements WeatherQueryEndpoint {
 
 			// updated in the last day
 			if (ai.getLastUpdateTime() > System.currentTimeMillis() - MILLISECONDS_OF_DAY) {
-				datasize += ai.getSize();
+				// count if any datapoint is present
+				datasize += ai.getSize()>0 ? 1 : 0;
 			}
 			
 			double frac = (double) airport.getFrequency() / repositoryCount;
@@ -90,7 +87,7 @@ public class RestWeatherQueryEndpoint implements WeatherQueryEndpoint {
 										.intValue() + 1;
 
 		int[] hist = new int[maxRadius];
-		for (Radius radius : radiusRepository.getAll()) {
+		for (RequestFrequency radius : radiusRepository.getAll()) {
 			int i = radius.getRadius().intValue() % 10;
 			hist[i] += radius.getFrequency();
 		}
@@ -142,8 +139,6 @@ public class RestWeatherQueryEndpoint implements WeatherQueryEndpoint {
 		}
 		return Response.status(Response.Status.OK).entity(retval).build();
 	}
-
-
 
 	/**
 	 * A dummy init method that loads hard coded data

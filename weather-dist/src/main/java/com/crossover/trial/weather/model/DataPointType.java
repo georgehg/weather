@@ -5,7 +5,7 @@ package com.crossover.trial.weather.model;
  *
  * @author code test administrator
  */
-public enum DataPointType implements UpdatableWheater {
+public enum DataPointType implements UpdatableDataPoint {
     WIND {
     	@Override
     	public Boolean update(DataPoint oldData, DataPoint newData) {

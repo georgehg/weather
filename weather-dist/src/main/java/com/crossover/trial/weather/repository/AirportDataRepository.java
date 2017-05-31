@@ -13,16 +13,17 @@ import com.crossover.trial.weather.exceptions.WeatherException;
 import com.crossover.trial.weather.model.Airport;
 
 public class AirportDataRepository implements Repository<Airport, String> {
+	
+	private static AirportDataRepository instance = new AirportDataRepository();
 
-	private static ConcurrentMap<String, Airport> airportData = new ConcurrentHashMap<String, Airport>();
+	private ConcurrentMap<String, Airport> airportData = new ConcurrentHashMap<String, Airport>();
 
-	/**
-	 * Given an iataCode find the airport data
-	 *
-	 * @param iataCode
-	 *            as a string
-	 * @return airport data or null if not found
-	 */
+	private AirportDataRepository() {}
+	
+	public static AirportDataRepository getInstance() {
+		return instance;
+	}
+
 	@Override
 	public Optional<Airport> get(String iataCode) {
 		return Optional.ofNullable(airportData.get(iataCode));
@@ -35,7 +36,7 @@ public class AirportDataRepository implements Repository<Airport, String> {
 
 	@Override
 	public void add(Airport airport) throws WeatherException {
-		if (airportData.get(airport.getIata()) == null ) {
+		if (airportData.get(airport.getIata()) != null ) {
 			throw new WeatherException("Airport "+airport.getIata()+" already exists.");
 		}
 		airportData.put(airport.getIata(), airport);

@@ -25,10 +25,15 @@ public class AtmosphericInformation {
      * @param dataPoint the actual data point
      * @param pointType the data point type as a string
      */
-    public void updateAtmosphericInformation(DataPoint dataPoint, DataPointType dataPointType) throws WeatherException {
+    public void updateAtmosphericInformation(DataPoint dataPoint, DataPointType pointType) throws WeatherException {
     	
-    	if (dataPointType.update(this.dataPoint.get(dataPointType), dataPoint)) {
+    	if (this.dataPoint.get(pointType) == null) {
+    		this.dataPoint.put(pointType, dataPoint);
     		this.lastUpdateTime = System.currentTimeMillis();
+    	} else {
+	    	if (pointType.update(this.dataPoint.get(pointType), dataPoint)) {
+	    		this.lastUpdateTime = System.currentTimeMillis();
+	    	}
     	}
     	
     }

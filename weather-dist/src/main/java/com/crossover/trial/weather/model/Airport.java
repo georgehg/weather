@@ -26,15 +26,12 @@ public class Airport {
     
     /** Airport Atmospheric Informations */
     private AtmosphericInformation atmosphericInformation;
-    
-    private Integer frequency;
 
 	private Airport(String iata, double latitude, double longitude, AtmosphericInformation atmosphericInformation) {
 		this.iata = iata;
 		this.latitude = latitude;
 		this.longitude = longitude;
 		this.atmosphericInformation = atmosphericInformation;
-		this.frequency = 0;
 	}
 	
 	public static Airport of(String iata, double latitude, double longitude) {
@@ -86,14 +83,6 @@ public class Airport {
     public void setLongitude(double longitude) {
         this.longitude = longitude;
     }
-	
-	public Integer getFrequency() {
-		return frequency;
-	}
-	
-	public void increaseFrequency() {
-		this.frequency++;
-	}
 
 	public AtmosphericInformation getAtmosphericInformation() {
 		return atmosphericInformation;

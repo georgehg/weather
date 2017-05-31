@@ -1,6 +1,5 @@
 package com.crossover.trial.weather.endpoints;
 
-import java.util.Arrays;
 import java.util.Optional;
 import java.util.logging.Logger;
 
@@ -28,7 +27,7 @@ public class RestWeatherCollectorEndpoint implements WeatherCollectorEndpoint {
     
 	public final static Logger LOGGER = Logger.getLogger(RestWeatherCollectorEndpoint.class.getName());
 	
-	private static AirportDataRepository airportRepository = new AirportDataRepository();
+	private static AirportDataRepository airportRepository = AirportDataRepository.getInstance();
 
     /** shared gson json to object factory */
     public final static Gson gson = new Gson();
@@ -112,12 +111,14 @@ public class RestWeatherCollectorEndpoint implements WeatherCollectorEndpoint {
     	if (!ai.isPresent()) {
     		throw new WeatherException("couldn't update atmospheric data");
     	}
-    	
-        if (! Arrays.asList(DataPointType.values()).contains(pointType)) {
-        	throw new WeatherException("couldn't update atmospheric data");
+    	DataPointType dataPointType;
+    	try {
+    		dataPointType = DataPointType.valueOf(pointType.toUpperCase());
+    	} catch (IllegalArgumentException e) {
+        	throw new WeatherException("couldn't update atmospheric data. Caus: " + e.getMessage());
         }
         
-        ai.get().updateAtmosphericInformation(dp, DataPointType.valueOf(pointType));
+        ai.get().updateAtmosphericInformation(dp, dataPointType);
     }
 
 }

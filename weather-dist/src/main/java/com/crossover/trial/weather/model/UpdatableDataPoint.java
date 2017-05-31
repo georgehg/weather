@@ -1,6 +1,6 @@
 package com.crossover.trial.weather.model;
 
-public interface UpdatableWheater {
+public interface UpdatableDataPoint {
 	
 	Boolean update(DataPoint oldData, DataPoint newData);
 
