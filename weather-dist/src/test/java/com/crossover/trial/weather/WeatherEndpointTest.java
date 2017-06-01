@@ -4,6 +4,8 @@ import static org.junit.Assert.assertEquals;
 
 import java.util.List;
 
+import javax.ws.rs.core.Response;
+
 import org.junit.Before;
 import org.junit.Test;
 
@@ -82,6 +84,33 @@ public class WeatherEndpointTest {
 		List<AtmosphericInformation> ais = (List<AtmosphericInformation>) _query.weather("BOS", "0").getEntity();
 		assertEquals(ais.get(0).getWind(), windDp);
 		assertEquals(ais.get(0).getCloudCover(), cloudCoverDp);
+	}
+	
+	
+	@Test
+	public void addAirports() {
+		
+		Response response = _update.addAirport("LHR","51.4775", "-0.461389");		
+		assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());	
+		
+		response = _update.getAirport("LHR");
+		JsonElement result = new JsonParser().parse(response.getEntity().toString());
+		
+		assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+		assertEquals("LHR",result.getAsJsonObject().get("iata").getAsString());
+
+	}
+	
+	
+	@Test
+	public void deleteAirports() {
+		
+		Response response = _update.addAirport("STN", "40.79935", "-74.4148747");		
+		assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());	
+		
+		response = _update.deleteAirport("STN");
+		assertEquals(Response.Status.NO_CONTENT.getStatusCode(), response.getStatus());
+
 	}
 
 }
