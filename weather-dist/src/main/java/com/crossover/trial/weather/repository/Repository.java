@@ -20,6 +20,8 @@ public interface Repository<T, K> {
 	
 	Integer getCount();
 	
+	void remove(K key) throws WeatherException;
+	
 	void removeAll();
 
 }

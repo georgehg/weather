@@ -42,6 +42,8 @@ public class WeatherEndpointTest {
 		assertEquals(1, pingResult.getAsJsonObject().get("datasize").getAsInt());
 		assertEquals(5, pingResult.getAsJsonObject().get("iata_freq").getAsJsonObject().entrySet().size());
 		assertEquals(1, pingResult.getAsJsonObject().get("iata_freq").getAsJsonObject().get("BOS").getAsDouble(), 0.1);
+		assertEquals(1, pingResult.getAsJsonObject().get("radius_freq").getAsJsonArray().get(0).getAsInt());
+
 	}
 
 	@Test

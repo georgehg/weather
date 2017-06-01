@@ -1,5 +1,6 @@
 package com.crossover.trial.weather.model;
 
+import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
@@ -8,6 +9,7 @@ import lombok.ToString;
  *
  * @author code test administrator
  */
+@Data
 @ToString
 @EqualsAndHashCode
 public class Airport {
@@ -17,7 +19,7 @@ public class Airport {
 
     /** the three letter IATA code */
     private String iata;
-
+    
     /** latitude value in degrees */
     private double latitude;
 
@@ -59,33 +61,5 @@ public class Airport {
 		double c = 2 * Math.asin(Math.sqrt(a));
 		return R * c;
 	}
-
-    public String getIata() {
-        return this.iata;
-    }
-
-    public void setIata(String iata) {
-        this.iata = iata;
-    }
-
-    public double getLatitude() {
-        return this.latitude;
-    }
-
-    public void setLatitude(double latitude) {
-        this.latitude = latitude;
-    }
-
-    public double getLongitude() {
-        return this.longitude;
-    }
-
-    public void setLongitude(double longitude) {
-        this.longitude = longitude;
-    }
-
-	public AtmosphericInformation getAtmosphericInformation() {
-		return atmosphericInformation;
-	}
-
+	
 }

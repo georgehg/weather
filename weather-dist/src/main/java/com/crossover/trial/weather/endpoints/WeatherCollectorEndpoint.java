@@ -72,6 +72,7 @@ public interface WeatherCollectorEndpoint {
      */
     @POST
     @Path("/airport/{iata}/{lat}/{long}")
+    @Produces(MediaType.APPLICATION_JSON)
     Response addAirport(@PathParam("iata") String iata,
                         @PathParam("lat") String latString,
                         @PathParam("long") String longString);
@@ -84,6 +85,7 @@ public interface WeatherCollectorEndpoint {
      */
     @DELETE
     @Path("/airport/{iata}")
+    @Produces(MediaType.APPLICATION_JSON)
     Response deleteAirport(@PathParam("iata") String iata);
 
     @GET

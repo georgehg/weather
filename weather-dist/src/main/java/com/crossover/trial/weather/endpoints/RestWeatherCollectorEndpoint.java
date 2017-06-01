@@ -4,7 +4,6 @@ import java.util.Optional;
 import java.util.logging.Logger;
 
 import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
 import javax.ws.rs.core.Response;
 
 import com.crossover.trial.weather.exceptions.WeatherException;
@@ -25,64 +24,69 @@ import com.google.gson.Gson;
 @Path("/collect")
 public class RestWeatherCollectorEndpoint implements WeatherCollectorEndpoint {
     
-	public final static Logger LOGGER = Logger.getLogger(RestWeatherCollectorEndpoint.class.getName());
+	private final static Logger LOGGER = Logger.getLogger(RestWeatherCollectorEndpoint.class.getName());
 	
 	private static AirportDataRepository airportRepository = AirportDataRepository.getInstance();
 
     /** shared gson json to object factory */
-    public final static Gson gson = new Gson();
+    private final static Gson gson = new Gson();
 
     @Override
     public Response ping() {
         return Response.status(Response.Status.OK).entity("ready").build();
     }
+    
 
     @Override
-    public Response updateWeather(@PathParam("iata") String iataCode,
-                                  @PathParam("pointType") String pointType,
-                                  String datapointJson) {
+    public Response updateWeather(String iataCode, String pointType, String datapointJson) {
         try {
             addDataPoint(iataCode, pointType, gson.fromJson(datapointJson, DataPoint.class));
         } catch (WeatherException e) {
-        	return Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build();
+        	return Response.status(Response.Status.BAD_REQUEST).entity(gson.toJson(e.getMessage())).build();
         }
-        return Response.status(Response.Status.OK).build();
+        return Response.ok().build();
     }
 
 
     @Override
     public Response getAirports() {
-        return Response.status(Response.Status.OK).entity(airportRepository.getKeySet()).build();
+        return Response.status(Response.Status.OK).entity(gson.toJson(airportRepository.getAll())).build();
     }
 
 
     @Override
-    public Response getAirport(@PathParam("iata") String iata) {
-        return Response.status(Response.Status.OK).entity(airportRepository.get(iata)).build();
+    public Response getAirport(String iata) {
+    	Optional<Airport> airport = airportRepository.get(iata);
+    	
+    	if (airport.isPresent()) {
+    		return Response.status(Response.Status.OK).entity(gson.toJson(airport.get())).build();
+    	} else {
+			return Response.status(Response.Status.NOT_FOUND).entity(gson.toJson("Airpot not found with IATA: " + iata)).build();
+    	}
     }
-
+    
 
     @Override
-    public Response addAirport(@PathParam("iata") String iata,
-                               @PathParam("lat") String latString,
-                               @PathParam("long") String longString) {
+    public Response addAirport(String iata, String latString, String longString) {    	
     	
 		try {
 			airportRepository.add(Airport.of(iata, Double.valueOf(latString), Double.valueOf(longString)));
-			return Response.status(Response.Status.OK).build();
+			return Response.ok().build();
 		} catch (NumberFormatException e) {
-			return Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build();
+			return Response.status(Response.Status.BAD_REQUEST).entity(gson.toJson(e.getMessage())).build();
 		} catch (WeatherException e) {
-			return Response.status(Response.Status.PRECONDITION_FAILED).entity(e.getMessage()).build();
+			return Response.status(Response.Status.PRECONDITION_FAILED).entity(gson.toJson(e.getMessage())).build();
 		}
-
     }
 
-
     @Override
-    public Response deleteAirport(@PathParam("iata") String iata) {
-    	//airportRepository.remove(iata)
-        return Response.status(Response.Status.NOT_IMPLEMENTED).build();
+    public Response deleteAirport(String iata) {
+    	try {
+    		airportRepository.remove(iata);
+    		return Response.noContent().build();
+    	} catch (WeatherException e) {
+			return Response.status(Response.Status.PRECONDITION_FAILED).entity(gson.toJson(e.getMessage())).build();
+		}
     }
 
     @Override
@@ -103,7 +107,7 @@ public class RestWeatherCollectorEndpoint implements WeatherCollectorEndpoint {
      *
      * @throws WeatherException if the update can not be completed
      */
-    public void addDataPoint(String iataCode, String pointType, DataPoint dp) throws WeatherException {
+    private void addDataPoint(String iataCode, String pointType, DataPoint dp) throws WeatherException {
        
     	Optional<AtmosphericInformation> ai = airportRepository.get(iataCode)
         										.map((airport) -> airport.getAtmosphericInformation());
@@ -115,7 +119,7 @@ public class RestWeatherCollectorEndpoint implements WeatherCollectorEndpoint {
     	try {
     		dataPointType = DataPointType.valueOf(pointType.toUpperCase());
     	} catch (IllegalArgumentException e) {
-        	throw new WeatherException("couldn't update atmospheric data. Caus: " + e.getMessage());
+        	throw new WeatherException("couldn't update atmospheric data. Cause: " + e.getMessage());
         }
         
         ai.get().updateAtmosphericInformation(dp, dataPointType);

@@ -17,8 +17,6 @@ public class AirportDataRepository implements Repository<Airport, String> {
 	private static AirportDataRepository instance = new AirportDataRepository();
 
 	private ConcurrentMap<String, Airport> airportData = new ConcurrentHashMap<String, Airport>();
-
-	private AirportDataRepository() {}
 	
 	public static AirportDataRepository getInstance() {
 		return instance;
@@ -55,6 +53,14 @@ public class AirportDataRepository implements Repository<Airport, String> {
 	@Override
 	public List<Airport> getAll() {
 		return Collections.unmodifiableList(new ArrayList<Airport>(airportData.values()));
+	}
+	
+	@Override
+	public void remove(String key) throws WeatherException {
+		if (airportData.get(key) == null ) {
+			throw new WeatherException("Airport with IATA["+key+"] already exists.");
+		}
+		airportData.remove(key);		
 	}
 
 	@Override

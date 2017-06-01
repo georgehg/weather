@@ -4,6 +4,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 import com.crossover.trial.weather.exceptions.WeatherException;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 /**
  * encapsulates sensor information for a particular location
@@ -38,10 +39,6 @@ public class AtmosphericInformation {
     	
     }
 
-    public DataPoint getAtmosphericData(DataPointType dataPointType) {
-        return this.dataPoint.get(dataPointType);
-    }
-
     public DataPoint getWind() {
     	return this.dataPoint.get(DataPointType.WIND);
     }
@@ -66,10 +63,12 @@ public class AtmosphericInformation {
     	return this.dataPoint.get(DataPointType.PRECIPITATION);
     }
     
+    @JsonIgnore
     public Integer getSize() {
     	return this.dataPoint.size();
     }
-
+    
+    @JsonIgnore
     public long getLastUpdateTime() {
         return this.lastUpdateTime;
     }
